@@ -1,0 +1,40 @@
+-- Creating boomyaga DATABASE
+CREATE DATABASE boomyaga
+
+-- Using the boomyaga database
+USE boomyaga
+
+-- Creating the users table
+CREATE TABLE users ( 
+    user_id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY, 
+    name VARCHAR(255) NOT NULL, 
+    email VARCHAR(255) NOT NULL UNIQUE KEY, 
+    password VARCHAR(255) NOT NULL, 
+    phone VARCHAR(20) NOT NULL UNIQUE KEY, 
+    user_role ENUM('user', 'vendor', 'admin') DEFAULT 'user', 
+    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    update_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
+);
+
+-- Adding verification to users table
+ALTER TABLE users ADD COLUMN verified TINYINT(1) DEFAULT 0 AFTER user_role;
+ALTER TABLE users ADD COLUMN verification_token VARCHAR(255) AFTER verified;
+
+-- Creating the products table
+CREATE TABLE products (
+	product_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    product_name VARCHAR(255) NOT NULL,
+    product_category VARCHAR(255) NOT NULL,
+    product_images JSON NOT NULL,
+    tags JSON NULL,
+    description LONGTEXT NOT NULL,
+    initial_price DOUBLE(11,2) NOT NULL,
+    selling_price DOUBLE(11,2) NOT NULL,
+    quantity INT UNSIGNED NOT NULL,
+    product_colors JSON NULL,
+    product_sizes JSON NULL,
+    user_id INT UNSIGNED NOT NULL,
+    registration_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY(user_id) REFERENCES users(user_id)
+);
