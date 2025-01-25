@@ -20,12 +20,42 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
               <form method="post" enctype="multipart/form-data">
 
+                <!-- Product Image Preview -->
                 <div class="form-outline mb-4">
-                  <img class="form-control form-control-lg" alt="New Product" src="./assets/boomyaga_icon.png" />
+                  <img class="form-control form-control-lg" alt="New Product" src="./assets/boomyaga_icon.png" id="imagePreview"/>
                   <label class="form-label" for="form3Example1cg">Upload Product Image</label>
-                  <input type="file" id="form3Example1cg" class="form-control form-control-lg" />
+                  <input type="file" id="product_upload" class="form-control form-control-lg" />
                 </div>
+                <script>
+                  const preview =document.getElementById("imagePreview");
+                  const image = document.getElementById("product_upload");
 
+                  image.addEventListener("change", ()=>{
+                    // console.log(image.files[0]);
+                    let file = image.files[0];
+                    const filesize = 3 * 1024 * 1024;
+                    if(file['type'] == "image/jpeg" || file['type'] == "image/png" || file['type'] == "image/jpg") {
+                      if(file['size'] <= filesize) {
+                        // console.log(file);
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                          preview.src = reader.result;
+                        }
+
+                        reader.readAsDataURL(file);
+                      } else {
+                        console.log("Image size is to large");
+                        preview.src = "./assets/boomyaga_icon.png";
+                        image.value = "";
+                      }
+                    } else {
+                      console.log("file type is not supported");
+                      preview.src = "./assets/boomyaga_icon.png";
+                      image.value = "";
+                    }
+
+                  });
+                </script>
                 <div class="form-outline mb-4">
                   <input type="text" id="form3Example1cg" class="form-control form-control-lg" name="product_name"
                     placeholder="Product Name" />
@@ -49,11 +79,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   </select>
                 </div>
 
-                <div class="form-outline mb-4">
-                  <textarea class="form-control form-control-lg" name="description" placeholder="Product Description"
-                    rows="8"></textarea>
-                </div>
-
                 <div class="form-outline mb-4 d-flex gap-3">
                   <input type="number" class="form-control form-control-lg" name="initial_price"
                     placeholder="Initial Price" />
@@ -75,6 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   </div>
                 </div>
 
+                <!-- Product Sizes -->
                 <div class="form-outline mb-4">
                   <label class="form-label">Product Sizes</label> <br />
                   <div class="tags-input">
@@ -83,7 +109,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                       onfocus="tagentry(tags2.id, this.id)" />
                   </div>
                 </div>
+                
+                <!-- Product Description -->
+                <div class="form-outline mb-4">
+                  <textarea class="form-control form-control-lg" name="description" placeholder="Product Description" rows="8"></textarea>
+                </div>
 
+                <!-- Product Tags -->
+                <div class="form-outline mb-4">
+                  <label class="form-label">Tags</label> <br />
+                  <div class="tags-input">
+                    <ul id="tags3"></ul>
+                    <input type="text" id="input-tag3" class="form-control" placeholder="Enter Product Tags"
+                      onfocus="tagentry(tags3.id, this.id)" />
+                  </div>
+                </div>
+
+                
 
                 <div class="form-check d-flex justify-content-center mb-5">
                   <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg" />
