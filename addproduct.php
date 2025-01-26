@@ -2,8 +2,19 @@
 $pagetitle = "Add Product";
 require_once "assets/header.php";
 
+// Initializing the variables
+$productName = $productCategory = $productImages = $tags = $description = $initialPrice = $sellingPrice = $quantity = $productColors = $productSizes = "";
+
+$user_id = $_SESSION['user_id'];
+
 // Form validation
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  $productName = htmlspecialchars($_POST['product_name']);
+  $productCategory = htmlspecialchars($_POST['product_category']);
+  $initialPrice = htmlspecialchars($_POST['initial_price']);
+  $sellingPrice = htmlspecialchars($_POST['selling_price']);
+  $quantity = htmlspecialchars($_POST['quantity']);
+  
 
 }
 ?>
@@ -23,37 +34,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <!-- Product Image Preview -->
                 <div class="form-outline mb-4">
                   <img class="form-control form-control-lg" alt="New Product" src="./assets/boomyaga_icon.png" id="imagePreview"/>
-                  <label class="form-label" for="form3Example1cg">Upload Product Image</label>
-                  <input type="file" id="product_upload" class="form-control form-control-lg" />
+                  <label class="form-label" id="upload_label">Upload Product Image</label>
+                  <input type="file" id="product_upload" class="form-control form-control-lg" name="product_images"/>
                 </div>
                 <script>
                   const preview =document.getElementById("imagePreview");
                   const image = document.getElementById("product_upload");
+                  const label = document.getElementById("upload_label");
+                  
 
-                  image.addEventListener("change", ()=>{
-                    // console.log(image.files[0]);
+                  image.addEventListener("change", () => {
                     let file = image.files[0];
                     const filesize = 3 * 1024 * 1024;
                     if(file['type'] == "image/jpeg" || file['type'] == "image/png" || file['type'] == "image/jpg") {
                       if(file['size'] <= filesize) {
-                        // console.log(file);
                         const reader = new FileReader();
                         reader.onload = () => {
                           preview.src = reader.result;
                         }
 
                         reader.readAsDataURL(file);
+                        label.innerHTML = "<span class='text-success'>Upload Successfully</span>";
                       } else {
                         console.log("Image size is to large");
                         preview.src = "./assets/boomyaga_icon.png";
                         image.value = "";
+                        label.innerHTML = "<span class='text-danger'>Image size is to large</span>";
                       }
                     } else {
                       console.log("file type is not supported");
                       preview.src = "./assets/boomyaga_icon.png";
                       image.value = "";
+                      label.innerHTML = "<span class='text-danger'>file type is not supported</span>";
                     }
-
                   });
                 </script>
                 <div class="form-outline mb-4">
@@ -63,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                 <div class="form-outline mb-4">
                   <!-- <label class="form-label" for="form3Example3cg">Category</label> -->
-                  <select class="form-control form-control-lg">
+                  <select class="form-control form-control-lg" name="product_category">
                     <option disabled selected>Product Category</option>
                     <option value="Fashion">Fashion</option>
                     <option value="Beauty & Health">Beauty & Health</option>
@@ -94,9 +107,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="form-outline mb-4">
                   <label class="form-label">Product Colors</label> <br />
                   <div class="tags-input">
-                    <ul id="tags1"></ul>
-                    <input type="text" id="input-tag1" class="form-control" placeholder="Enter Product Colors"
-                    onfocus="tagentry(tags1.id, this.id)" />
+                    <ul id="tags1" name="product_colors"></ul>
+                    <input type="text" id="input-tag1" class="form-control" placeholder="Enter Product Colors" onfocus="tagentry(tags1.id, this.id)" />
                   </div>
                 </div>
 
@@ -104,9 +116,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="form-outline mb-4">
                   <label class="form-label">Product Sizes</label> <br />
                   <div class="tags-input">
-                    <ul id="tags2"></ul>
-                    <input type="text" id="input-tag2" class="form-control" placeholder="Enter Product Sizes"
-                      onfocus="tagentry(tags2.id, this.id)" />
+                    <ul id="tags2" name="product_sizes"></ul>
+                    <input type="text" id="input-tag2" class="form-control" placeholder="Enter Product Sizes" onfocus="tagentry(tags2.id, this.id)" />
                   </div>
                 </div>
                 
@@ -119,29 +130,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="form-outline mb-4">
                   <label class="form-label">Tags</label> <br />
                   <div class="tags-input">
-                    <ul id="tags3"></ul>
-                    <input type="text" id="input-tag3" class="form-control" placeholder="Enter Product Tags"
-                      onfocus="tagentry(tags3.id, this.id)" />
+                    <ul id="tags3" name="tags"></ul>
+                    <input type="text" id="input-tag3" class="form-control" placeholder="Enter Product Tags" onfocus="tagentry(tags3.id, this.id)" />
                   </div>
                 </div>
 
                 
 
-                <div class="form-check d-flex justify-content-center mb-5">
+                <!-- <div class="form-check d-flex justify-content-center mb-5">
                   <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg" />
                   <label class="form-check-label" for="form2Example3g">
                     I agree all statements in <a href="#!" class="text-body"><u>Terms of service</u></a>
                   </label>
-                </div>
+                </div> -->
 
                 <div class="d-flex justify-content-center">
-                  <button type="button"
-                    class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Register</button>
+                  <input type="submit" value="Create Product" class="btn btn-success btn-block btn-lg gradient-custom-4 text-body"/>
                 </div>
 
-                <p class="text-center text-muted mt-5 mb-0">Have already an account?
+                <!-- <p class="text-center text-muted mt-5 mb-0">Have already an account?
                   <a href="#!" class="fw-bold text-body"><u>Login here</u></a>
-                </p>
+                </p> -->
 
               </form>
 
