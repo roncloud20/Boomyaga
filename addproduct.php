@@ -14,7 +14,38 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $initialPrice = htmlspecialchars($_POST['initial_price']);
   $sellingPrice = htmlspecialchars($_POST['selling_price']);
   $quantity = htmlspecialchars($_POST['quantity']);
+
+  $productImages = $_FILES['product_images'];
+  echo $productImages['name'];
   
+  // Product Colors Validations
+  if (!empty($_POST['product_colors'])) {
+    $product_colors = explode(',', $_POST['product_colors']);
+    foreach ($product_colors as $color) {
+      echo htmlspecialchars($color) . ", ";
+    }
+  } else {
+    echo "No product sizes entered.";
+  }
+  // Product Sizes Validations
+  if (!empty($_POST['product_sizes'])) {
+    $product_sizes = explode(',', $_POST['product_sizes']);
+    foreach ($product_sizes as $size) {
+      echo htmlspecialchars($size) . ", ";
+    }
+  } else {
+    echo "No product sizes entered.";
+  }
+
+  // Product Tags Validations
+  if (!empty($_POST['tags'])) {
+    $tags = explode(',', $_POST['tags']);
+    foreach ($tags as $tag) {
+      echo htmlspecialchars($tag) . ", ";
+    }
+  } else {
+    echo "No product sizes entered.";
+  }
 
 }
 ?>
@@ -75,9 +106,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
 
                 <div class="form-outline mb-4">
-                  <!-- <label class="form-label" for="form3Example3cg">Category</label> -->
+                  <label class="form-label" for="form3Example3cg">Category</label>
                   <select class="form-control form-control-lg" name="product_category">
-                    <option disabled selected>Product Category</option>
                     <option value="Fashion">Fashion</option>
                     <option value="Beauty & Health">Beauty & Health</option>
                     <option value="Mobile & Tablets">Mobile & Tablets</option>
@@ -103,22 +133,24 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   <input type="number" class="form-control form-control-lg" name="quantity" placeholder="quantity" />
                 </div>
 
-                
+                <!-- Product Colors -->
                 <div class="form-outline mb-4">
                   <label class="form-label">Product Colors</label> <br />
                   <div class="tags-input">
-                    <ul id="tags1" name="product_colors"></ul>
-                    <input type="text" id="input-tag1" class="form-control" placeholder="Enter Product Colors" onfocus="tagentry(tags1.id, this.id)" />
+                    <ul id="tags1"></ul>
+                    <input type="text" id="input-tag1" class="form-control" placeholder="Enter Product Colors" onfocus="tagentry('tags1', 'input-tag1', 'product_colors_hidden')" />
                   </div>
+                  <input type="hidden" name="product_colors" id="product_colors_hidden" />
                 </div>
 
                 <!-- Product Sizes -->
                 <div class="form-outline mb-4">
                   <label class="form-label">Product Sizes</label> <br />
                   <div class="tags-input">
-                    <ul id="tags2" name="product_sizes"></ul>
-                    <input type="text" id="input-tag2" class="form-control" placeholder="Enter Product Sizes" onfocus="tagentry(tags2.id, this.id)" />
+                    <ul id="tags2"></ul>
+                    <input type="text" id="input-tag2" class="form-control" placeholder="Enter Product Sizes" onfocus="tagentry('tags2', 'input-tag2', 'product_sizes_hidden')" />
                   </div>
+                  <input type="hidden" name="product_sizes" id="product_sizes_hidden" />
                 </div>
                 
                 <!-- Product Description -->
@@ -130,28 +162,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="form-outline mb-4">
                   <label class="form-label">Tags</label> <br />
                   <div class="tags-input">
-                    <ul id="tags3" name="tags"></ul>
-                    <input type="text" id="input-tag3" class="form-control" placeholder="Enter Product Tags" onfocus="tagentry(tags3.id, this.id)" />
+                    <ul id="tags3"></ul>
+                    <input type="text" id="input-tag3" class="form-control" placeholder="Enter Product Tags" onfocus="tagentry('tags3', 'input-tag3', 'product_tags_hidden')" />
                   </div>
+                  <input type="hidden" name="tags" id="product_tags_hidden" />
                 </div>
-
-                
-
-                <!-- <div class="form-check d-flex justify-content-center mb-5">
-                  <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3cg" />
-                  <label class="form-check-label" for="form2Example3g">
-                    I agree all statements in <a href="#!" class="text-body"><u>Terms of service</u></a>
-                  </label>
-                </div> -->
 
                 <div class="d-flex justify-content-center">
                   <input type="submit" value="Create Product" class="btn btn-success btn-block btn-lg gradient-custom-4 text-body"/>
                 </div>
-
-                <!-- <p class="text-center text-muted mt-5 mb-0">Have already an account?
-                  <a href="#!" class="fw-bold text-body"><u>Login here</u></a>
-                </p> -->
-
               </form>
 
           </div>
@@ -211,61 +230,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   }
 </style>
 
-<!-- Tag Input Script -->
 <script>
-
-  function tagentry(tagEntry, inputEntry) {
-    // console.log(tagEntry);
-    // console.log(inputEntry);
-    // Get the tags and input elements from the DOM
+  function tagentry(tagEntry, inputEntry, hiddenInputEntry) {
     const tags = document.getElementById(tagEntry);
     const input = document.getElementById(inputEntry);
+    const hiddenInput = document.getElementById(hiddenInputEntry);
 
-    // Add an event listener for keydown on the input element
     input.addEventListener('keydown', function (event) {
-
-      // Check if the key pressed is 'Enter'
-      if (event.key === 'Enter') {
-
-        // Prevent the default action of the keypress
-        // event (submitting the form)
+        if (event.key === 'Enter') {
         event.preventDefault();
-
-        // Create a new list item element for the tag
-        const tag = document.createElement('li');
-
-        // Get the trimmed value of the input element
         const tagContent = input.value.trim();
 
-        // If the trimmed value is not an empty string
         if (tagContent !== '') {
+            const tag = document.createElement('li');
+            tag.innerHTML = `${tagContent} <button class="delete-button">X</button>`;
+            tags.appendChild(tag);
+            updateHiddenInput();
 
-          // Set the text content of the tag to 
-          // the trimmed value
-          tag.innerText = tagContent;
-
-          // Add a delete button to the tag
-          tag.innerHTML += '<button class="delete-button">X</button>';
-
-          // Append the tag to the tags list
-          tags.appendChild(tag);
-
-          // Clear the input element's value
-          input.value = '';
+            input.value = '';
         }
-      }
+        }
     });
 
-    // Add an event listener for click on the tags list
     tags.addEventListener('click', function (event) {
-
-      // If the clicked element has the class 'delete-button'
-      if (event.target.classList.contains('delete-button')) {
-
-        // Remove the parent element (the tag)
+        if (event.target.classList.contains('delete-button')) {
         event.target.parentNode.remove();
-      }
+        updateHiddenInput();
+        }
     });
+
+    function updateHiddenInput() {
+        let tagValues = Array.from(tags.children).map(tag => tag.innerText.replace('X', '').trim());
+        hiddenInput.value = tagValues.join(',');
+    }
   }
 
 </script>
