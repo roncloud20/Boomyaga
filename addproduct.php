@@ -1,52 +1,70 @@
 <?php
 $pagetitle = "Add Product";
 require_once "assets/header.php";
+require_once "assets/mailer.php";
 
 // Initializing the variables
 $productName = $productCategory = $productImages = $tags = $description = $initialPrice = $sellingPrice = $quantity = $productColors = $productSizes = "";
 
+// Initializing the error variables
+$initialPriceError = $sellingPriceError = $productImagesError = "";
+
+// Capturing login user information
 $user_id = $_SESSION['user_id'];
+$user_name = $_SESSION['name'];
+$user_email = $_SESSION['email'];
+$msg = "";
 
 // Form validation
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $productName = htmlspecialchars($_POST['product_name']);
   $productCategory = htmlspecialchars($_POST['product_category']);
+  $description = htmlspecialchars($_POST['description']);
   $initialPrice = htmlspecialchars($_POST['initial_price']);
   $sellingPrice = htmlspecialchars($_POST['selling_price']);
   $quantity = htmlspecialchars($_POST['quantity']);
+  $productColors = htmlspecialchars($_POST['product_colors']);
+  $productSizes = htmlspecialchars($_POST['product_sizes']);
+  $tags = htmlspecialchars($_POST['tags']);
 
+  // Validating Product Image
   $productImages = $_FILES['product_images'];
-  echo $productImages['name'];
-  
-  // Product Colors Validations
-  if (!empty($_POST['product_colors'])) {
-    $product_colors = explode(',', $_POST['product_colors']);
-    foreach ($product_colors as $color) {
-      echo htmlspecialchars($color) . ", ";
-    }
+  if ($productImages['error'] == 0) {
+    $filename = uniqid($productName . '_') . "." . pathinfo($productImages['name'], PATHINFO_EXTENSION);
+    $filelocation = 'products_images/' . $filename;
+    move_uploaded_file( $productImages['tmp_name'], $filelocation);
   } else {
-    echo "No product sizes entered.";
-  }
-  // Product Sizes Validations
-  if (!empty($_POST['product_sizes'])) {
-    $product_sizes = explode(',', $_POST['product_sizes']);
-    foreach ($product_sizes as $size) {
-      echo htmlspecialchars($size) . ", ";
-    }
-  } else {
-    echo "No product sizes entered.";
+    $productImagesError = "Product images Upload Failed";
   }
 
-  // Product Tags Validations
-  if (!empty($_POST['tags'])) {
-    $tags = explode(',', $_POST['tags']);
-    foreach ($tags as $tag) {
-      echo htmlspecialchars($tag) . ", ";
-    }
+  // Validating Initial Price & Selling Price
+  if ($sellingPrice > $initialPrice) {
+    $initialPriceError = $sellingPriceError = "Selling Price cannot be more than Initial Price";
   } else {
-    echo "No product sizes entered.";
+    $initialPriceError = $sellingPriceError = "";
   }
 
+  if ($productImagesError == "" && $initialPriceError == "" && $sellingPriceError == "") {
+    // Populating Database
+    $query = "INSERT INTO products(product_name, product_category, product_images, tags, description, initial_price, selling_price, quantity, product_colors, product_sizes, user_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)";
+
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param('sssssddissi', $productName, $productCategory, $filelocation, $tags, $description, $initialPrice, $sellingPrice, $quantity, $productColors, $productSizes, $user_id);
+
+    if ($stmt->execute()) {
+      $mail->setFrom('boomyaga@roncloud.com.ng', "Boomyaga New Product");
+      $mail->addAddress($user_email, $user_name);
+      $mail->isHTML(true);
+      $mail->Subject = 'Product Verification';
+      $mail->Body = "<h1>Hello, $user_name</h1> 
+        <p>You have successfully add a new product $productName</p>";
+      $mail->AltBody = "Hello, $user_name. You have successfully add a new product $productName<";
+      $mail->send();
+      $msg = "<span class='text-success'>Product Added Successfully</span>";
+    } else {
+      $msg = "<span class='text-danger'>Failed To Add Product</span>";
+    }
+  }
 }
 ?>
 
@@ -59,6 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           <div class="card" style="border-radius: 15px;">
             <div class="card-body p-5">
               <h2 class="text-uppercase text-center mb-5">Add A Product</h2>
+              <h3><?= $msg ?></h3>
 
               <form method="post" enctype="multipart/form-data">
 
@@ -66,7 +85,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="form-outline mb-4">
                   <img class="form-control form-control-lg" alt="New Product" src="./assets/boomyaga_icon.png" id="imagePreview"/>
                   <label class="form-label" id="upload_label">Upload Product Image</label>
-                  <input type="file" id="product_upload" class="form-control form-control-lg" name="product_images"/>
+                  <span class="text-danger"><?= $productImagesError ?></span>
+                  <input type="file" id="product_upload" class="form-control form-control-lg" name="product_images" required/>
                 </div>
                 <script>
                   const preview =document.getElementById("imagePreview");
@@ -101,13 +121,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   });
                 </script>
                 <div class="form-outline mb-4">
-                  <input type="text" id="form3Example1cg" class="form-control form-control-lg" name="product_name"
-                    placeholder="Product Name" />
+                  <input type="text" id="form3Example1cg" class="form-control form-control-lg" name="product_name" placeholder="Product Name" required />
                 </div>
 
                 <div class="form-outline mb-4">
                   <label class="form-label" for="form3Example3cg">Category</label>
-                  <select class="form-control form-control-lg" name="product_category">
+                  <select class="form-control form-control-lg" name="product_category" required>
                     <option value="Fashion">Fashion</option>
                     <option value="Beauty & Health">Beauty & Health</option>
                     <option value="Mobile & Tablets">Mobile & Tablets</option>
@@ -122,15 +141,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                   </select>
                 </div>
 
-                <div class="form-outline mb-4 d-flex gap-3">
-                  <input type="number" class="form-control form-control-lg" name="initial_price"
-                    placeholder="Initial Price" />
-                  <input type="number" class="form-control form-control-lg" name="selling_price"
-                    placeholder="Selling Price" />
+                <div class="form-outline d-flex gap-3">
+                  <input type="number" class="form-control form-control-lg" name="initial_price" placeholder="Initial Price" required />
+                  <input type="number" class="form-control form-control-lg" name="selling_price" placeholder="Selling Price" required />
+                </div>
+                <div class="mb-4">
+                  <span class="text-danger"><?= $initialPriceError ?></span>
                 </div>
 
                 <div class="form-outline mb-4">
-                  <input type="number" class="form-control form-control-lg" name="quantity" placeholder="quantity" />
+                  <input type="number" class="form-control form-control-lg" name="quantity" placeholder="quantity" min="1" required />
                 </div>
 
                 <!-- Product Colors -->
@@ -155,7 +175,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 
                 <!-- Product Description -->
                 <div class="form-outline mb-4">
-                  <textarea class="form-control form-control-lg" name="description" placeholder="Product Description" rows="8"></textarea>
+                  <textarea class="form-control form-control-lg" name="description" placeholder="Product Description" rows="8" required></textarea>
                 </div>
 
                 <!-- Product Tags -->
@@ -237,32 +257,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     const hiddenInput = document.getElementById(hiddenInputEntry);
 
     input.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
+      if (event.key === 'Enter') {
         event.preventDefault();
         const tagContent = input.value.trim();
 
         if (tagContent !== '') {
-            const tag = document.createElement('li');
-            tag.innerHTML = `${tagContent} <button class="delete-button">X</button>`;
-            tags.appendChild(tag);
-            updateHiddenInput();
+          const tag = document.createElement('li');
+          tag.innerHTML = `${tagContent} <button class="delete-button">X</button>`;
+          tags.appendChild(tag);
+          updateHiddenInput();
 
-            input.value = '';
+          input.value = '';
         }
-        }
+      }
     });
 
     tags.addEventListener('click', function (event) {
-        if (event.target.classList.contains('delete-button')) {
+      if (event.target.classList.contains('delete-button')) {
         event.target.parentNode.remove();
         updateHiddenInput();
-        }
+      }
     });
 
     function updateHiddenInput() {
-        let tagValues = Array.from(tags.children).map(tag => tag.innerText.replace('X', '').trim());
-        hiddenInput.value = tagValues.join(',');
+      let tagValues = Array.from(tags.children).map(tag => tag.innerText.replace('X', '').trim());
+      hiddenInput.value = tagValues.join(',');
     }
   }
-
 </script>
