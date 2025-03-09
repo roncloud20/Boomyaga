@@ -24,6 +24,7 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="dashboard.php"> Vendor Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="addproduct.php"> Add Product</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="vendor_products.php">My Products</a></li>
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="logout.php">Logout</a></li>
                 </ul>
             <?php } else if(isset($_SESSION['user_id']) && $_SESSION['user_role'] == 'user') {?>
@@ -36,6 +37,7 @@
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="index.php">Home</a></li>
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="about.php">About Us</a></li>
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="contact.php">Contact Us</a></li>
+                    <li class="nav-item"><a class="nav-link active" aria-current="page" href="view_cart.php">View Cart</a></li>
                     <li class="nav-item"><a class="nav-link active" aria-current="page" href="login.php">Login</a></li>
                 </ul>
             <?php }?>

@@ -1,92 +1,43 @@
 <?php
     $pagetitle = "Boomyaga | No 1 Retail Store";
     require_once "assets/header.php";
-?>
 
-<?php
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (!empty($_POST['product_sizes'])) {
-        $product_sizes = explode(',', $_POST['product_sizes']);
-        echo "Product Sizes Submitted:<br>";
-        foreach ($product_sizes as $size) {
-            echo htmlspecialchars($size) . "<br>";
-        }
-    } else {
-        echo "No product sizes entered.";
+    if(!isset($_SESSION['order_id'])) {
+        $_SESSION['order_id'] = random_int(00000, 99999);
+        // echo $_SESSION['order_id'];
     }
-}
 ?>
-
-<h1>Home Page</h1>
-<!-- <input type="password" id="password"/>
-<input type="checkbox" id="show" onchange="showPass(password, show)"/> Show
-<input type="password" id="password1"/>
-<input type="checkbox" id="show1" onchange="showPass(password1, show1)"/> Show -->
-<script>
-    // var password = document.getElementById(pass);
-    // var show = document.getElementById(check);
-    // show.addEventListener("change", (e) => {
-    //     if(e.target.checked) {
-    //         password.type = "text";
-    //     } else {
-    //         password.type = "password";
-    //     }
-    // });
-    function showPass(pass, check) {
-        if(check.checked) {
-            pass.type = "text";
+<main>
+    <h1>Home Page</h1>
+    <?php 
+        // Fetching all products in  the database
+        $query = "SELECT * FROM products";
+        $result = mysqli_query($conn, $query);
+        // 08148262465
+        if(mysqli_num_rows($result) > 0) {
+            echo "<div class='d-flex gap-3 flex-wrap'>";
+            while($row = mysqli_fetch_assoc($result)) {
+    ?>
+                <div class="card" style="width: 18rem;">
+                    <img src="<?= $row['product_images']?>" class="card-img-top" alt="<?= $row['product_name']?>" style="height:250px; object-fit: cover;"/>
+                    <div class="card-body">
+                        <h5 class="card-title"><?= $row['product_name']?></h5>
+                        <p>
+                            <span class="text-decoration-line-through">Initial Price: <?= "&#8358;" . number_format($row['initial_price'], 2, '.', ',')?> </span> <br/>
+                            <span>Selling Price: <?= "&#8358;" . number_format($row['selling_price'], 2, '.', ',')?></span>
+                        </p>
+                        <a href="view_product.php?product_id=<?=$row['product_id']?>&product_name=<?=$row['product_name']?>"  class="btn btn-primary">View Product</a>
+                    </div>
+                </div>
+    <?php
+            }
+            echo '</div>';
         } else {
-            pass.type = "password";
+            echo "<h1>No products found</h1>";
         }
-    }
-</script>
 
-<!-- Product Sizes -->
-<form method="POST" action="">
-  <div class="form-outline mb-4">
-    <label class="form-label">Product Sizes</label> <br />
-    <div class="tags-input">
-      <ul id="tags2"></ul>
-      <input type="text" id="input-tag2" class="form-control" placeholder="Enter Product Sizes" onfocus="tagentry('tags2', 'input-tag2')" />
-    </div>
-    <input type="hidden" name="product_sizes" id="product_sizes_hidden" />
-  </div>
-  <button type="submit">Submit</button>
-</form>
-
-<script>
-    function tagentry(tagEntry, inputEntry) {
-    const tags = document.getElementById(tagEntry);
-    const input = document.getElementById(inputEntry);
-    const hiddenInput = document.getElementById('product_sizes_hidden');
-
-    input.addEventListener('keydown', function (event) {
-        if (event.key === 'Enter') {
-        event.preventDefault();
-        const tagContent = input.value.trim();
-
-        if (tagContent !== '') {
-            const tag = document.createElement('li');
-            tag.innerHTML = `${tagContent} <button class="delete-button">X</button>`;
-            tags.appendChild(tag);
-            updateHiddenInput();
-
-            input.value = '';
-        }
-        }
-    });
-
-    tags.addEventListener('click', function (event) {
-        if (event.target.classList.contains('delete-button')) {
-        event.target.parentNode.remove();
-        updateHiddenInput();
-        }
-    });
-
-    function updateHiddenInput() {
-        let tagValues = Array.from(tags.children).map(tag => tag.innerText.replace('X', '').trim());
-        hiddenInput.value = tagValues.join(',');
-    }
-    }
-
-</script>
+    ?>
+    
+    
+    
+</main>

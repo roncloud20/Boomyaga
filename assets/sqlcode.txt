@@ -38,3 +38,16 @@ CREATE TABLE products (
     update_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY(user_id) REFERENCES users(user_id)
 );
+
+-- Creating Cart Table
+CREATE TABLE carts (
+	cart_id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    product_id INT NOT NULL,
+    order_id INT UNSIGNED NOT NULL,
+    quantity INT UNSIGNED NOT NULL,
+    product_color VARCHAR(255),
+    product_size VARCHAR(255),
+    status ENUM("Pending", "Approved", "Out For Delivery", "Delivered", "Failed") DEFAULT "Pending",
+    create_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_date DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
