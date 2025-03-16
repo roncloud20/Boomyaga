@@ -42,9 +42,9 @@
                 </ul>
             <?php }?>
 
-            <form class="d-flex" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Search</button>
+            <form class="d-flex" role="search" action="search.php" method="POST">
+                <input class="form-control me-2" name="search" type="search" placeholder="Search" aria-label="Search">
+                <input class="btn btn-outline-success" type="submit" value="Search" />
             </form>
             <section class="d-flex m-3">
                 <a href="register.php" class="btn btn-outline-primary ">Register</a>

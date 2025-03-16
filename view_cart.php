@@ -41,7 +41,7 @@ echo $order_id;
     </tr>
     <?php
         }
-            echo ' </tbody>';
+            echo '</tbody>';
         } else {
         echo "<h1>Cart is Empty</h1>";
         }

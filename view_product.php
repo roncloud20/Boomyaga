@@ -31,7 +31,7 @@
         <!-- Product Contents -->
         <div class="d-flex flex-column flex-fill gap-5">
             <h1><?= $item['product_name']?></h1>
-            <h4><a href='#' class='border rounded-pill m-1 px-3 text-decoration-none'><?= $item['product_category']?></a></h4>
+            <h4><a href="categorySearch.php?search=<?= $item['product_category']?>" class='border rounded-pill m-1 px-3 text-decoration-none'><?= $item['product_category']?></a></h4>
             <div>
                 <span>Product Tags: </span>
                 <?php
